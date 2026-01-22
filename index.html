@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>JavaScript Sandbox</title>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+
+  <body class="montserrat">
+    <div id="app">
+
+    <script src="./index.js" type="module"></script>
+    </div>
+ 
+ 
+    <!-- intro -->
+
+    <div class="intro">
+      <video autoplay muted loop id="intro-video">
+        <source src="clubvid.mp4" type="video/mp4" />
+      </video>
+      <!-- navbar -->
+      <nav>
+        <a class="navlink" href="#our-mission"> Our Mission </a>
+        <a class="navlink" href="#events"> Events </a>
+        <a class="navlink" href="#important-forms"> Important Forms </a>
+        <a class="navlink" href="#the-team"> The Team</a>
+        <a class="navlink" href="#support-us"> Support Us </a>
+        <a class="navlink" href="resources.html"> Resources </a>
+      </nav>
+
+      <div class = "clubtitle">
+        <div class="imgpicholder">
+        <img class ="imgpic" src="AerotechMHS (4).png">
+        </div>
+      </div>
+    </div>
+    <!-- our mission -->
+
+    <div id="our-mission" class="section">
+      <h1 class="mission">Our Mission</h1>
+      <p id="mission-text">Milpitas High School Aerotech, built from the dream of several aspiring engineers in 2021/2022, is a student led rocketry club that participates in ARC, otherwise known as the American Rocketry Challenge. Currently, MHS Aerotech has a total of 3 Highschool ARC teams and 1 middle school team consisting of around 10 students each. Students hold afterschool meetings to plan, build, and discuss rocket designs. Outside of ARC, Aerotech MHS also hosts a service event known as ASA to give elementary schoolers an opportunity to learn and experience rocketry. 
+</p>
+    </div>
+    <!-- important forms -->
+    <div class="forms section">
+      <!-- image carousel -->
+      <h1 id="events" class="eventhead">Events</h1>
+      <div class="image-carousel">
+        <div class="slideshow-container">
+          <div class="buttondiv">
+            <img class="next imgclick" src="next.png" alt="next" />
+            <img class="back imgclick" src="next.png" alt="back" />
+          </div>
+          <div class="slide-wrapper">
+            <div class="slide">
+              <img src="asa/asa1.jpeg" alt="" />
+            </div>
+            <div class="slide active">
+              <img src="asa/asa2.jpeg" alt="" />
+            </div>
+            <div class="slide">
+              <img src="asa/asa3.jpeg" alt="" />
+            </div>
+            <div class="slide">
+              <img src="asa/asa4.jpeg" alt="" />
+            </div>
+            <div class="slide">
+              <img src="asa/asa5.jpeg" alt="" />
+            </div>
+            <div class="slide">
+              <img src="asa/asa6.jpeg" alt="" />
+            </div>
+            <div class="slide">
+              <img src="asa/asa7.jpeg" alt="" />
+            </div>
+            <div class="slide">
+              <img src="asa/asa8.jpeg" alt="" />
+            </div>
+            <div class="slide">
+              <img src="asa/asa9.jpeg" alt="" />
+            </div>
+            <div class="slide">
+              <img src="asa/asa10.jpeg" alt="" />
+            </div>
+            <div class="slide">
+              <img src="asa/asa11.jpeg" alt="" />
+            </div>
+            <div class="slide">
+              <img src="asa/asa12.jpeg" alt="" />
+            </div>
+            <div class="slide">
+              <img src="asa/asa13.jpeg" alt="" />
+            </div>
+            <div class="slide">
+              <img src="asa/asa14.jpeg" alt="" />
+            </div>
+            <div class="slide">
+              <img src="asa/asa15.jpeg" alt="" />
+            </div>
+            <div class="slide">
+              <img src="asa/asa16.jpeg" alt="" />
+            </div>
+            <div class="slide">
+              <img src="asa/asa17.jpeg" alt="" />
+            </div>
+            <div class="slide">
+              <img src="asa/asa18.jpeg" alt="" />
+            </div>
+            <div class="slide">
+              <img src="asa/asa19.jpeg" alt="" />
+            </div>
+            <div class="slide">
+              <img src="asa/asa20.jpeg" alt="" />
+            </div>
+            <div class="slide">
+              <img src="asa/asa21.jpeg" alt="" />
+            </div>
+            <div class="slide">
+              <img src="asa/asa22.jpeg" alt="" />
+            </div>
+            <div class="slide">
+              <img src="asa/asa23.jpeg" alt="" />
+            </div>
+            <div class="slide">
+              <img src="asa/asa24.jpeg" alt="" />
+            </div>
+            <div class="slide">
+              <img src="asa/asa25.jpeg" alt="" />
+            </div>
+            <div class="slide">
+              <img src="asa/asa26.jpeg" alt="" />
+            </div>
+            <div class="slide">
+              <img src="asa/asa27.jpeg" alt="" />
+            </div>
+            <div class="slide">
+              <img src="asa/asa28.jpeg" alt="" />
+            </div>
+            <div class="slide">
+              <img src="asa/asa29.jpeg" alt="" />
+            </div>
+            <div class="slide">
+              <img src="asa/asa30.jpeg" alt="" />
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- scroller -->
+      </div>
+      <div class="scroller">
+        <div class = "scrolls">
+        <div id = "line"></div>        
+        <img class = "littlerocket" src = "rocketscroller.png"/>
+        </div>
+       </div>
+      <!-- popups -->
+      <div class = "section" id="important-forms">
+        <h1 class="formhead">Important Forms</h1>
+        <div class="info">
+          <div class="tarcsection">
+            <h4 class="tarc">TARC</h4>
+            <h4 class="tarc">(The American Rocketry Competition)</h4>
+
+            <p class="abouttarc b"> What is TARC?</p><p>
+The Team America Rocketry Challenge (TARC) is the world's largest rocket competition for students, organized by the Aerospace Industries Association and the National Association of Rocketry. Teams design, build, and launch model rockets to meet specific mission objectives that change annually.
+</p><p class="b">Our Teams</p><p>
+AeroTech fields three high school TARC teams and one middle school team. Our students tackle real-world engineering challenges, from aerodynamic design to precision flight control, competing for a chance to advance to national finals in Washington, D.C.
+</p><p class="b">What We Do</p><p>
+Our teams design custom rockets, conduct test launches, carry payloads safely, and refine their designs to meet precise altitude and duration targets. TARC provides hands-on experience in aerospace engineering, teaching propulsion, stability, aerodynamics, and teamwork—skills that have helped many of our alumni pursue careers in engineering and aerospace.
+</p>
+            <button class="infobutton" id="opentarc">TARC Form</button>
+          </div>
+          <div class="asasection">
+            <h4 class="asa">ASA</h4>
+            <h4 class="asa">(Aerotech Space Adventures)</h4>
+
+            <p class="aboutasa">AeroTech Space Adventures is our signature outreach program where Milpitas High School AeroTech members share their passion for aerospace with elementary students in grades 1-6 throughout the Milpitas Unified School District.</p>
+<p class="b">What We Offer</p><p>
+Students build and launch their own rockets and boost gliders in guided 1.5-hour workshops led by our high school mentors. No experience needed—just curiosity! Each participant takes home their creation and gains real-world exposure to aeronautics, physics, and engineering in a fun, supportive environment.
+</p><p class = "b">Why ASA Matters</p><p>
+For our high school members, ASA develops leadership and teaching skills while giving back to the community. For elementary students, it's a chance to discover STEM through hands-on learning and experience the thrill of launching something they built themselves.</p>
+            <button class="infobutton" id="openasa">ASA Form</button>
+          </div>
+        </div>
+        <div id="asa" class="popup-stuff">
+          <div class="popupcontent">
+            <iframe
+              id="googleform1"width="640" height
+              src="https://docs.google.com/forms/d/e/1FAIpQLSfP-eeTwwJdJDjrwdNf7I-Poaxi2NDQmvjG3rlmSzDbOJqDow/viewform?embedded=true"
+              width="80vw"
+              height="100%"
+              frameborder="0"
+              marginheight="0"
+              marginwidth="0"
+              >Loading…</iframe
+            >
+            <img
+              id="close-asa"
+              class="closebutton"
+              src="close-button.jpg"
+              alt="close"
+            />
+          </div>
+        </div>
+        <div id="tarc" class="popup-stuff">
+          <div class="popupcontent">
+            <iframe
+              id="googleform2"
+              src="https://docs.google.com/forms/d/e/1FAIpQLSexR3W_Y6pnCwb1A3_dQvmKG3Juxr983h4otDgxI8Vf_-I8yA/viewform?embedded=true"
+              width="80vw"
+              height="100%"
+              frameborder="0"
+              marginheight="0"
+              marginwidth="0"
+              >Loading…</iframe
+            >
+            <img
+              id="close-tarc"
+              class="closebutton"
+              src="close-button.jpg"
+              alt="close"
+            />
+          </div>
+        </div>
+      </div>
+    
+
+    <!-- the team -->
+    <div class="teamcontent section">
+      <div id="the-team">
+        <h1 class="teamhead">The Team</h1>
+        <div class="aboutus">
+          <div class="buttondiv prof">
+            <img class="nextprof imgclick prof" src="click.png" alt="next" />
+            <img class="backprof imgclick prof" src="click.png" alt="back" />
+          </div>
+          <div class = "move">
+            <div class="individual" id="Prisha">
+              <div class="imgs">
+              <img class="profilerocket" src = "profilerocket.png">
+              <img class="profile" src="team/prisha.jpg" />
+              <div class="proftextdiv">
+              <p class="proftext"> President + Web Developer</p>
+              <p class="proftext email"> prisha.sabhnani@gmail.com </p>
+              </div>
+              </div>
+              <div class="text">
+                <p class="Blurb">Prisha Sabhnani</p>
+                <p class="aboutme">Third year Aerotech member, second year president. Aspiring aerospace engineer that is interested in science, building things, and coding. In academics, loves math and physics, and outside of school, loves to read and watch Netflix. Developed this website :)</p>
+              </div>
+            </div>
+            <div class="individual" id="Poorvi">
+              <div class="imgs">
+              <img class="profilerocket" src = "profilerocket.png">
+              <img class="profile" src="team/poorvi.jpg" />
+              <div class="proftextdiv">
+              <p class="proftext"> Vice President</p>
+              <p class="proftext"> pv91123@student.musd.org </p>
+              </div>
+              </div>
+              <div class="text">
+                <p class="Blurb"> Poorvita Vijayananda</p>
+                <p class="aboutme">Third year Aerotech member, second year vice president. Interested in science, engineering, and any hands on projects or building from ground up. Outside of the club, she explores biology research, mental health advocacy, and working on people-driven community projects.
+</p>
+              </div>
+            </div>
+            <div class="individual" id="Harsheet">
+              <div class="imgs">
+              <img class="profilerocket" src = "profilerocket.png">
+              <img class="profile" src="team/harsheet.png" />
+              <div class="proftextdiv">
+              <p class="proftext"> Treasurer + Instructor </p>
+              <p class="proftext"> harsheet.bhole@gmail.com </p>
+              </div>
+              </div>
+              <div class="text">
+                <p class="Blurb">Harsheet Bhole</p>
+                <p class="aboutme">As a third year Aerotech member, Harsheet is a specialist in Open Rocket simulations and is a vital part of the rocket building process. He has aspired to follow an aerospace engineering path since a young age and now continues his passion in showing relentless determination and commitment to Aerotech. Additionally, he loves airplanes and other forms of transportation.
+</p>
+              </div>
+            </div>
+
+            <div class="individual" id="Ishnavi">
+              <div class="imgs">
+              <img class="profilerocket" src = "profilerocket.png">
+              <img class="profile" src="team/ishnavi.png" />
+              <div class="proftextdiv">
+              <p class="proftext">Secretary </p>
+              <p class="proftext"> ij104147@student.musd.org </p>
+              </div>
+              </div>
+              <div class="text">
+                <p class="Blurb">Ishnavi Jadhav</p>
+                <p class="aboutme">Second year Aerotech member who is interested in math, engineering and science. She enjoys exploring more about aerospace engineering and the rocket design process. Outside interests include community service and reading.
+</p>
+              </div>
+            </div>
+            <div class="individual" id="Nehul">
+              <div class="imgs">
+              <img class="profilerocket" src = "profilerocket.png">
+              <img class="profile" src="team/nehul.jpg" />
+              <div class="proftextdiv">
+              <p class="proftext">Instructor  </p>
+              <p class="proftext"> nk105061@student.musd.org </p>
+              </div>
+              </div>
+              <div class="text">
+                <p class="Blurb">Nehul Kumar</p>
+                <p class="aboutme">Third year Aerotech member who loves physics, team projects and nature. He wants to pursue an engineering pathway and loves teaching and learning new skills and facts all the time. Outside interests include music and history.</p>
+              </div>
+            </div>
+            <div class="individual" id="Stanley">
+              <div class="imgs">
+              <img class="profilerocket" src = "profilerocket.png">
+              <img class="profile" src="team/stanley.jpg" />
+              <div class="proftextdiv">
+              <p class="proftext"> Instructor + Photographer </p>
+              <p class="proftext"> stanleydo313@gmail.com </p>
+              </div>
+              </div>
+              <div class="text">
+                <p class="Blurb">Stanley Do</p>
+                <p class="aboutme">A third year Aerotech member. General specializations in rocketry software, modeling, and social media. With some experience in teaching and public speaking, he uses his role to help introduce newcomers into rocketry.  </p>
+              </div>
+            </div>
+          
+            <div class="individual" id="Aditya">
+              <div class="imgs">
+              <img class="profilerocket" src = "profilerocket.png">
+              <img
+                class="profile"
+                src="team/aditya.png"
+              />
+              <div class="proftextdiv">
+              <p class="proftext">Instructor + CAD Designer </p>
+              <p class="proftext"> adityadornala6@gmail.com </p>
+              </div>
+              </div>
+              <div class="text">
+                <p class="Blurb">Aditya Dornala</p>
+                <p class="aboutme">Third year Aerotech member. Fond of missiles, planes, physics, and rockets. Enjoys 3D modeling, working with his 3D printer, biking, spending time with friends, and sleeping. He hopes to one day be able to get an aerospace job at NASA.
+</p>
+              </div>
+            </div>
+            <div class="individual" id="Mihika">
+              <div class="imgs">
+              <img class="profilerocket" src = "profilerocket.png">
+              <img
+                class="profile"
+                src="team/mihika.png"
+              />
+              <div class="proftextdiv">
+              <p class="proftext"> Publicist< </p>
+              <p class="proftext"> mk97771@student.musd.org </p>
+              </div>
+              </div>
+              <div class="text">
+                <p class="Blurb">Mihika Kedia</p>
+                <p class="aboutme">Second year Aerotech member with an interest in physics, engineering, and art. She enjoys obsessively tracking flightradar24 and geocaching in her free time. Outside interests include music, dance, and literature.</p>
+              </div>
+            </div>
+            <div class="individual" id="Larry">
+              <div class="imgs">
+              <img class="profilerocket" src = "profilerocket.png">
+              <img class="profile" src="team/larry.png" />
+              <div class="proftextdiv">
+              <p class="proftext"> Outreach Coordinator </p>
+              <p class="proftext"> larryxie08@gmail.com </p>
+              </div>
+              </div>
+              <div class="text">
+                <p class="Blurb">Larry Xie </p>
+                <p class="aboutme">Second year Aerotech member. Loves math, physics, and philosophy. Likes a good challenge, long conversations about almost anything, and also debate.
+</p>
+              </div>
+            </div>
+        </div>
+        </div>
+      </div>
+    </div>
+    <!-- support us -->
+    <div id="support-us" class="section">
+      <div class="support-text">
+        <div class="left">
+          <h1 id="support-heading">Support Us</h1>
+          <p class="stext lefttext">
+            AerotechMHS is a rocketry club with a goal to get to Nationals in
+            The American Rocketry Competition. However, we require funds to be
+            able to support the entrance fees and the material fees for all of
+            our teams. Any small donation helps. Thank you!
+          </p>
+        </div>
+        <div class="divider"></div>
+        <div class="right">
+          <p class="stext">
+            Here's our donation page. When you open the page, scroll down to the option for "Donate to Aerotech".</p><p class="stext">Anything helps! Note: there's a small fee
+            for using the student store for our donation page, so keep that in
+            mind. <br />
+            <br />
+            <a class="donationlink" href="http://mhs.myschoolcentral.com/"
+              >MHS Webstore</a
+            >
+          </p>
+        </div>
+      </div>
+    </div>
+    <p class="endnote2">AerotechMHS</p>
+  </body>
+</html>
