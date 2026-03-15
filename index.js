@@ -84,15 +84,26 @@ function CloseTARC() {
 
 let index = 1;
 const slidewrap = document.querySelector(".slide-wrapper");
-function startTrans() {
-  const vw = window.innerWidth;
-  const trans = 730 - (vw - 700) / 2;
-  const slidesx = slidewrap.querySelectorAll(".slide");
-  slidesx.forEach(
-    (slide) => (slide.style.transform = `translateX(-${trans}px)`)
-  );
+function setActiveSlide(nextIndex) {
+  const slides = slidewrap.querySelectorAll(".slide");
+  if (!slides.length) {
+    return;
+  }
+
+  index = Math.max(0, Math.min(nextIndex, slides.length - 1));
+  const activeSlide = slides[index];
+  const centeredOffset = activeSlide.offsetLeft - Math.max(0, (window.innerWidth - activeSlide.offsetWidth) / 2);
+
+  slides.forEach((slide) => {
+    slide.style.transform = `translateX(-${centeredOffset}px)`;
+  });
+
+  slides.forEach((slide, currentIndex) => {
+    slide.classList.toggle("active", currentIndex === index);
+  });
 }
-startTrans();
+
+setActiveSlide(index);
 
 let slideindex = 0;
 function addSlide() {
@@ -104,33 +115,14 @@ function addSlide() {
 }
 
 function nextSlide() {
-  const viewwidth = window.innerWidth;
-  const translate = 730 - (viewwidth - 700) / 2;
   const slides = slidewrap.querySelectorAll(".slide");
-  slides.forEach(
-    (slide) =>
-      (slide.style.transform = `translateX(-${translate + 720 * index}px)`)
-  );
-  slides[index].classList.toggle("active");
-  slides[index + 1].classList.toggle("active");
-  index++;
+  if (index < slides.length - 1) {
+    setActiveSlide(index + 1);
+  }
 }
 function lastSlide() {
-  if (index != 1) {
-    console.log(index);
-    const viewwidth = window.innerWidth;
-    const translate = 730 - (viewwidth - 700) / 2;
-    const slides = slidewrap.querySelectorAll(".slide");
-    slides.forEach(
-      (slide) =>
-        (slide.style.transform = `translateX(-${
-          translate + 720 * (index - 2)
-        }px)`)
-    );
-    slides[index].classList.toggle("active");
-    slides[index - 1].classList.toggle("active");
-    index--;
-    console.log(index);
+  if (index > 0) {
+    setActiveSlide(index - 1);
   }
 }
 
@@ -176,18 +168,32 @@ function returnimg() {
 }
 
 function start(){
-    teammove.style.transform = `translateX(${-55*count+20}vw)`;
+    setActiveProfile(count);
+}
+
+const profiles = document.querySelectorAll(".individual");
+
+function setActiveProfile(nextIndex) {
+  if (!profiles.length) {
+    return;
+  }
+
+  count = Math.max(0, Math.min(nextIndex, profiles.length - 1));
+  const activeProfile = profiles[count];
+  const mobileView = window.innerWidth <= 768;
+  const offset = mobileView
+    ? activeProfile.offsetLeft
+    : activeProfile.offsetLeft - Math.max(0, (window.innerWidth - activeProfile.offsetWidth) / 2);
+
+  teammove.style.transform = `translateX(-${offset}px)`;
 }
 
 function nextperson() {
-  if (count!=8){
-  count++;
-  console.log("nextperson works");
+  if (count < profiles.length - 1){
   imgs.forEach(img=>{
     img.style.transform = "rotate(-25deg)"
   });
-  // teammove.style.transform = `translateX(${-60*count+30}vw)`;
-  teammove.style.transform = `translateX(${-55*count+20}vw)`;
+  setActiveProfile(count + 1);
 
   setTimeout(returnimg, 250);
 }
@@ -195,13 +201,10 @@ function nextperson() {
 
 function lastperson() {
   if (count>0) {
-  count--;
-  console.log("lastperson works");
   imgs.forEach(img=>{
   img.style.transform = "rotate(25deg)"
   });  
-  // teammove.style.transform = `translateX(${-60*count+30}vw)`;
-  teammove.style.transform = `translateX(${-55*count+20}vw)`;
+  setActiveProfile(count - 1);
   setTimeout(returnimg, 250);
 }
 }
@@ -237,5 +240,10 @@ const backbutton = document.querySelector(".back");
 
 nextbutton.addEventListener("click", nextclicked);
 backbutton.addEventListener("click", backclicked);
+
+window.addEventListener("resize", () => {
+  setActiveSlide(index);
+  setActiveProfile(count);
+});
 
 // swipe function

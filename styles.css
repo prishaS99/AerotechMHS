@@ -894,3 +894,251 @@ background-color: black;
 z-index:10000000;
 
 }
+
+@media (max-width: 768px) {
+  html,
+  body {
+    overflow-x: hidden;
+  }
+
+  body {
+    background-size: cover;
+  }
+
+  nav {
+    height: auto;
+    min-height: 64px;
+    padding: 8px 12px;
+    box-sizing: border-box;
+    flex-wrap: wrap;
+  }
+
+  .navlink {
+    font-size: 14px;
+    margin: 2px 4px;
+    padding: 8px 10px;
+  }
+
+  .clubtitle {
+    top: 24vh;
+  }
+
+  .imgpicholder {
+    height: 70vh;
+    align-items: center;
+  }
+
+  .imgpic {
+    width: min(78vw, 360px);
+    height: auto;
+  }
+
+  #our-mission {
+    margin-left: 16px;
+    margin-right: 16px;
+    margin-top: 32px;
+  }
+
+  .scroller {
+    max-height: 40px;
+  }
+
+  .littlerocket {
+    width: 32px;
+  }
+
+  #line {
+    height: 3px;
+  }
+
+  .info {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .tarcsection,
+  .asasection {
+    width: auto;
+    padding: 20px;
+  }
+
+  .slideshow-container {
+    height: 260px;
+  }
+
+  .slide {
+    min-width: 100%;
+    height: 260px;
+    padding: 0 6px;
+    box-sizing: border-box;
+  }
+
+  .slide img {
+    border-radius: 16px;
+  }
+
+  .imgclick {
+    width: 36px;
+    height: 36px;
+  }
+
+  .popupcontent {
+    width: 100%;
+    min-height: 100%;
+    border-radius: 0;
+  }
+
+  .aboutus {
+    height: 620px;
+  }
+
+  .individual {
+    width: 100vw;
+    padding: 24px 16px;
+    box-sizing: border-box;
+    flex-shrink: 0;
+  }
+
+  .imgs {
+    width: min(56vw, 240px);
+    margin: 0 auto;
+  }
+
+  .profilerocket {
+    width: 100%;
+    height: auto;
+  }
+
+  .profile {
+    width: min(18vw, 72px);
+    height: min(18vw, 72px);
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .proftext {
+    font-size: 12px;
+  }
+
+  .proftextdiv {
+    top: 45%;
+    width: 100%;
+    padding-left: 0;
+  }
+
+  .text {
+    position: static;
+    width: auto;
+    max-width: 88vw;
+    margin: 24px auto 0;
+    font-size: 16px;
+  }
+
+  .imgclick.prof,
+  .nextprof,
+  .backprof {
+    width: 20px;
+    height: 30px;
+    padding: 0 8px;
+  }
+
+  .support-text {
+    flex-direction: column;
+    gap: 24px;
+    padding: 0 20px;
+  }
+
+  .left,
+  .right {
+    width: 100%;
+    padding: 0;
+  }
+
+  .lefttext,
+  #support-heading {
+    position: static;
+  }
+
+  .divider {
+    display: none;
+  }
+
+  .snap-container {
+    height: auto;
+    overflow-y: auto;
+    scroll-snap-type: none;
+  }
+
+  .snap {
+    height: auto;
+    min-height: auto;
+    padding: 88px 0 32px;
+  }
+
+  .resourcehead {
+    min-height: 60vh;
+    font-size: 20px;
+    padding: 0 16px;
+    background-attachment: scroll;
+  }
+
+  .parts,
+  .tutorialvids {
+    flex-direction: column;
+  }
+
+  .parts {
+    padding: 0 20px;
+  }
+
+  .part1,
+  .part2 {
+    width: 100%;
+  }
+
+  .part2 {
+    margin-top: 20px;
+  }
+
+  .rocketpic {
+    width: 160px;
+    height: auto;
+  }
+
+  .calendarholder {
+    width: 92%;
+    height: 70vh;
+  }
+
+  .tutorial1,
+  .tutorial2 {
+    margin: 0;
+  }
+
+  .tutorial1 iframe,
+  .tutorial2 iframe {
+    width: min(92vw, 400px);
+    height: 220px;
+  }
+
+  .image-carousel.rocket {
+    height: 320px;
+  }
+
+  .slide.rocket {
+    min-width: 100%;
+    height: 320px;
+    padding: 0 6px;
+    box-sizing: border-box;
+  }
+
+  .imgclick.rocket {
+    width: 36px;
+    height: 36px;
+  }
+
+  .endnote,
+  .endnote2 {
+    padding: 12px 0;
+  }
+}
