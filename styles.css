@@ -650,7 +650,7 @@ font-size: 100%;
 /* resource header */
 .resourcehead {
   color: white;
-  width: 100%;
+  max-width: 100%;
   text-align: center;
   font-size: 30px;
   background-image: url("spacebg.jpeg");
@@ -754,6 +754,10 @@ font-size: 100%;
   flex-direction: column;
   justify-content: center;
   align-items: center;
+}
+
+.tarcteamhead {
+  text-align: center;;
 }
 /* rocketparts */
 .rocketparts {
@@ -902,7 +906,7 @@ z-index:10000000;
   }
 
   body {
-    background-size: cover;
+    background-size:contain;
   }
 
   nav {
@@ -920,23 +924,24 @@ z-index:10000000;
   }
 
   .clubtitle {
-    top: 24vh;
+    top: 0;
+    opacity: 100%;
+    font-size: 8vw;
+  }
+
+  #intro-video {
+    min-height: 100%;
+    min-width: 100%;
   }
 
   .imgpicholder {
-    height: 70vh;
-    align-items: center;
-  }
-
-  .imgpic {
-    width: min(78vw, 360px);
-    height: auto;
+    display: none;
   }
 
   #our-mission {
     margin-left: 16px;
     margin-right: 16px;
-    margin-top: 32px;
+    margin-top: 40px;
   }
 
   .scroller {
@@ -944,7 +949,7 @@ z-index:10000000;
   }
 
   .littlerocket {
-    width: 32px;
+    width: 40px;
   }
 
   #line {
@@ -989,7 +994,7 @@ z-index:10000000;
   }
 
   .aboutus {
-    height: 620px;
+    height: 75vh;
   }
 
   .individual {
@@ -1010,9 +1015,9 @@ z-index:10000000;
   }
 
   .profile {
-    width: min(18vw, 72px);
-    height: min(18vw, 72px);
-    left: 50%;
+    width: min(20vw, 80px);
+    height: min(20vw, 80px);
+    left: 52%;
     transform: translateX(-50%);
   }
 
@@ -1058,6 +1063,15 @@ z-index:10000000;
   #support-heading {
     position: static;
   }
+
+.proftext {
+  font-size: min(8px, 2vw);
+  margin-left: 5%;
+}
+
+.aboutme {
+  min-height: 100%;
+}
 
   .divider {
     display: none;
@@ -1122,15 +1136,27 @@ z-index:10000000;
   }
 
   .image-carousel.rocket {
-    height: 320px;
+    height: min(50vh, 300px);
+  }
+  .rocketpartshead {
+    text-align: center;
   }
 
   .slide.rocket {
+    height:  300px;
     min-width: 100%;
-    height: 320px;
-    padding: 0 6px;
     box-sizing: border-box;
+    border-radius: 25px;
   }
+
+  .slide.rocket img {
+  object-fit: contain;
+}
+
+.slide.rocket.active img {
+  height: 100%;
+  opacity: 100%;
+}
 
   .imgclick.rocket {
     width: 36px;
