@@ -181,10 +181,11 @@ function setActiveProfile(nextIndex) {
   count = Math.max(0, Math.min(nextIndex, profiles.length - 1));
   const activeProfile = profiles[count];
   const mobileView = window.innerWidth <= 768;
-  const offset = mobileView
-    ? activeProfile.offsetLeft
-    : activeProfile.offsetLeft - Math.max(0, (window.innerWidth - activeProfile.offsetWidth) / 2);
+  let offset = mobileView
+  ? activeProfile.offsetLeft
+  : activeProfile.offsetLeft - (window.innerWidth - activeProfile.offsetWidth) / 2;
 
+  offset = Math.max(0, offset);
   teammove.style.transform = `translateX(-${offset}px)`;
 }
 
