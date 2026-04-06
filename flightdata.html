@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flight Comparison — OpenRocket vs Actual</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<div class="wrapper">
+
+    <nav class="resourcenav">
+      <a class="navlink" href="index.html#our-mission"> Our Mission </a>
+      <a class="navlink" href="index.html#events"> Events </a>
+      <a class="navlink" href="index.html#important-forms"> Important Forms </a>
+      <a class="navlink" href="index.html#the-team"> The Team</a>
+      <a class="navlink" href="index.html#support-us"> Support Us </a>
+      <a class="navlink" href="resources.html"> Resources </a>
+    </nav>
+    
+  <header>
+    <div class="logo-area">
+      <h1 class="section flightdatahead">Flight Data Graphs</h1>
+    </div>
+  </header>
+
+  <div class="layout">
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+
+      <div class="panel">
+        <div class="panel-header">Upload Files</div>
+        <div class="drop-zone" id="drop-zone">
+          <input type="file" id="file-input" accept=".csv,.pf2" multiple>
+          <span class="dz-icon">📂</span>
+          <div class="dz-title">Drop files here</div>
+          <div class="dz-hint">.pf2 flight data or OpenRocket .csv<br>Multiple files supported</div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <span>Loaded Files</span>
+          <span id="file-count" style="color:var(--accent);font-size:0.7rem;">0</span>
+        </div>
+        <div class="file-list" id="file-list">
+          <div class="empty-list">No files loaded yet</div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">Filter by Type</div>
+        <div class="filter-group">
+          <div class="filter-row active" data-ftype="all" style="color:var(--accent)">
+            <div class="fr-left"><div class="fr-dot" style="background:var(--accent)"></div><span class="fr-label">All files</span></div>
+            <span class="fr-count" id="fc-all">0</span>
+          </div>
+          <div class="filter-row" data-ftype="pf2" style="color:#f97316">
+            <div class="fr-left"><div class="fr-dot" style="background:#f97316"></div><span class="fr-label">.pf2 Flight Data</span></div>
+            <span class="fr-count" id="fc-pf2">0</span>
+          </div>
+          <div class="filter-row" data-ftype="csv" style="color:#3b82f6">
+            <div class="fr-left"><div class="fr-dot" style="background:#3b82f6"></div><span class="fr-label">OpenRocket .csv</span></div>
+            <span class="fr-count" id="fc-csv">0</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">Show Charts</div>
+        <div class="chart-tabs">
+          <button class="chart-tab active" data-chart="alt">Altitude</button>
+          <button class="chart-tab active" data-chart="vel">Velocity</button>
+          <button class="chart-tab active" data-chart="apogee">Apogee</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">Export / Download</div>
+        <div class="dl-section" id="dl-section">
+          <div class="dl-empty">Load files to enable exports</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Main -->
+    <div class="main" id="main">
+      <div id="empty-state">
+        <span class="big">↑</span>
+        Upload .pf2 or OpenRocket .csv files to begin
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ── Palette ────────────────────────────────────────────────────────
+const PALETTE = [
+  '#3b82f6','#f97316','#a78bfa','#22c55e','#f59e0b',
+  '#ec4899','#06b6d4','#84cc16','#fb7185','#38bdf8',
+  '#818cf8','#fb923c'
+];
+
+// ── State ──────────────────────────────────────────────────────────
+let files = [];
+let colorIdx = 0;
+let activeFilter = 'all';
+let chartVis = { alt: true, vel: true, apogee: true };
+let charts = {};
+
+// ── Upload ─────────────────────────────────────────────────────────
+const dz = document.getElementById('drop-zone');
+const fi = document.getElementById('file-input');
+
+fi.addEventListener('change', e => { handleFiles([...e.target.files]); fi.value = ''; });
+dz.addEventListener('dragover',  e => { e.preventDefault(); dz.classList.add('dragover'); });
+dz.addEventListener('dragleave', ()  => dz.classList.remove('dragover'));
+dz.addEventListener('drop', e => {
+  e.preventDefault(); dz.classList.remove('dragover');
+  handleFiles([...e.dataTransfer.files]);
+});
+
+function handleFiles(rawFiles) {
+  rawFiles.forEach(file => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const text = e.target.result;
+      const ext  = file.name.split('.').pop().toLowerCase();
+      try {
+        let data, meta = null, type;
+        if (ext === 'pf2') {
+          const r = parsePF2(text); data = r.df; meta = r.meta; type = 'pf2';
+        } else {
+          data = parseOpenRocketCSV(text); type = 'csv';
+        }
+        files.push({
+          id: Date.now() + Math.random(),
+          name: file.name, type,
+          color: PALETTE[colorIdx++ % PALETTE.length],
+          visible: true, data, meta
+        });
+        refresh();
+      } catch(err) { alert(`Could not parse "${file.name}":\n${err.message}`); }
+    };
+    reader.readAsText(file);
+  });
+}
+
+// ── Parsers ────────────────────────────────────────────────────────
+function parseOpenRocketCSV(text) {
+  const lines = text.split('\n');
+  let hi = -1, cols = [];
+  for (let i = 0; i < lines.length; i++) {
+    if (lines[i].startsWith('# Time (s)')) {
+      hi = i; cols = lines[i].replace(/^#\s*/,'').split(',').map(c=>c.trim()); break;
+    }
+  }
+  if (hi < 0) throw new Error('Could not find OpenRocket header row (expected "# Time (s)...")');
+  const d = { t:[], alt_ft:[], vel_ft:[] };
+  for (let i = hi+1; i < lines.length; i++) {
+    const ln = lines[i].trim();
+    if (!ln || ln.startsWith('#')) continue;
+    const v = ln.split(',').map(Number), row = {};
+    cols.forEach((c,j) => row[c] = v[j]);
+    d.t.push(row['Time (s)']);
+    d.alt_ft.push(row['Altitude (ft)']);
+    d.vel_ft.push((row['Vertical velocity (m/s)']||0) * 3.28084);
+  }
+  return d;
+}
+
+function parsePF2(text) {
+  const lines = text.split('\n');
+  const meta = {}; let si = null;
+  for (let i = 0; i < lines.length; i++) {
+    const ln = lines[i].trim();
+    if (ln.includes(':') && !ln.startsWith('Data:')) {
+      const p = ln.split(':',2); if (p.length===2) meta[p[0].trim()] = p[1].trim();
+    }
+    if (ln.startsWith('Data:')) { si = i+1; break; }
+  }
+  const df = { t:[], alt:[], vel:[] };
+  for (let i = si||0; i < lines.length; i++) {
+    const ln = lines[i].trim(); if (!ln) continue;
+    const v = ln.split(',').map(x=>parseFloat(x.trim()));
+    if (v.length >= 3 && !isNaN(v[0])) { df.t.push(v[0]); df.alt.push(v[1]); df.vel.push(v[2]); }
+  }
+  return { meta, df };
+}
+
+// ── Helpers ────────────────────────────────────────────────────────
+function altArr(f) { return f.type==='pf2' ? f.data.alt : f.data.alt_ft; }
+function velArr(f) { return f.type==='pf2' ? f.data.vel : f.data.vel_ft; }
+function maxIdx(arr) { let m=0; arr.forEach((v,i)=>{ if(v>arr[m]) m=i; }); return m; }
+
+function visibleFiles() {
+  return files.filter(f => f.visible && (activeFilter==='all' || f.type===activeFilter));
+}
+
+// ── Sidebar UI ─────────────────────────────────────────────────────
+function updateCounts() {
+  document.getElementById('fc-all').textContent  = files.length;
+  document.getElementById('fc-pf2').textContent  = files.filter(f=>f.type==='pf2').length;
+  document.getElementById('fc-csv').textContent  = files.filter(f=>f.type==='csv').length;
+  document.getElementById('file-count').textContent = files.length;
+}
+
+function renderFileList() {
+  const list = document.getElementById('file-list');
+  if (files.length === 0) {
+    list.innerHTML = '<div class="empty-list">No files loaded yet</div>'; return;
+  }
+  list.innerHTML = '';
+  files.forEach(f => {
+    const a = altArr(f), apogee = a.length ? Math.max(...a).toFixed(0)+' ft' : '—';
+    const item = document.createElement('div');
+    item.className = 'file-item' + (f.visible ? ' vis' : '');
+    item.style.color = f.color;
+    item.innerHTML = `
+      <div class="fi-swatch" style="background:${f.color};box-shadow:0 0 5px ${f.color}55"></div>
+      <div class="fi-info">
+        <div class="fi-name">${f.name}</div>
+        <div class="fi-meta">${f.type==='pf2'?'Flight':'Simulation'} · ▲ ${apogee}</div>
+      </div>
+      <button class="fi-toggle ${f.visible?'on':''}" title="Toggle visibility"></button>
+      <button class="fi-remove" title="Remove file">✕</button>
+    `;
+    item.querySelector('.fi-toggle').addEventListener('click', e => {
+      e.stopPropagation(); f.visible = !f.visible; refresh();
+    });
+    item.querySelector('.fi-remove').addEventListener('click', e => {
+      e.stopPropagation(); files = files.filter(x=>x.id!==f.id); refresh();
+    });
+    list.appendChild(item);
+  });
+}
+
+// Filter rows
+document.querySelectorAll('[data-ftype]').forEach(row => {
+  row.addEventListener('click', () => {
+    activeFilter = row.dataset.ftype;
+    document.querySelectorAll('[data-ftype]').forEach(r => r.classList.remove('active'));
+    row.classList.add('active');
+    refresh();
+  });
+});
+
+// Chart tabs
+document.querySelectorAll('.chart-tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const k = btn.dataset.chart;
+    chartVis[k] = !chartVis[k];
+    btn.classList.toggle('active', chartVis[k]);
+    // Toggle the cell directly if it exists (no full re-render needed)
+    const cell = document.getElementById('cell-' + k);
+    if (cell) cell.style.display = chartVis[k] ? '' : 'none';
+    renderDownloadPanel();
+  });
+});
+
+// ── Stats ──────────────────────────────────────────────────────────
+function renderStats(vis) {
+  document.querySelector('.stats-grid')?.remove();
+  if (vis.length < 1) return;
+
+  const grid = document.createElement('div');
+  grid.className = 'stats-grid';
+
+  const defs = [
+    { cls:'alt',  label:'Max Altitude',    fn: f => Math.max(...altArr(f)).toFixed(1)+' ft' },
+    { cls:'vel',  label:'Max Velocity',    fn: f => Math.max(...velArr(f)).toFixed(1)+' ft/s' },
+    { cls:'time', label:'Time to Apogee',  fn: f => { const a=altArr(f),mi=maxIdx(a); return f.data.t[mi].toFixed(2)+' s'; } },
+  ];
+
+  defs.forEach(d => {
+    const card = document.createElement('div');
+    card.className = `stat-card ${d.cls}`;
+    const rowsHtml = vis.map(f => {
+      const name = f.name.replace(/\.[^.]+$/,'').slice(0,16);
+      return `<div class="stat-row">
+        <span class="lbl" title="${f.name}">${name}</span>
+        <span class="val" style="color:${f.color}">${d.fn(f)}</span>
+      </div>`;
+    }).join('');
+    card.innerHTML = `<div class="stat-label">${d.label}</div><div class="stat-rows">${rowsHtml}</div>`;
+    grid.appendChild(card);
+  });
+
+  const main = document.getElementById('main');
+  main.insertBefore(grid, main.firstChild);
+}
+
+// ── Charts — styled to match original matplotlib output ────────────
+// Original: white bg, blue (#1f77b4) for sim, red (#d62728) for actual,
+// light grey grid (alpha=0.3), bold titles, legend in plot, 2×2 subplot layout
+
+const MPL_SIM    = '#1f77b4';   // matplotlib default blue
+const MPL_ACTUAL = '#d62728';   // matplotlib default red
+const MPL_GRID   = 'rgba(0,0,0,0.15)';
+const MPL_TEXT   = '#222222';
+const MPL_MUTED  = '#555555';
+const MPL_BG     = '#ffffff';
+
+// For multi-file mode we cycle through a broader palette but keep blue/red as first two
+const MPL_PALETTE = [MPL_SIM, MPL_ACTUAL, '#2ca02c','#9467bd','#8c564b','#e377c2','#7f7f7f','#bcbd22','#17becf'];
+
+// Assign matplotlib-style colors based on file index in loaded order
+function mplColor(f) {
+  const idx = files.indexOf(f);
+  return MPL_PALETTE[idx % MPL_PALETTE.length];
+}
+
+function baseOpts(xLabel, yLabel) {
+  return {
+    responsive: true, maintainAspectRatio: false,
+    interaction: { mode:'index', intersect:false },
+    animation: false,
+    plugins: {
+      legend: {
+        display: true,
+        position: 'upper right',
+        align: 'end',
+        labels: {
+          color: MPL_TEXT,
+          font: { family: 'DejaVu Sans, Arial, sans-serif', size: 11 },
+          boxWidth: 24, boxHeight: 2, padding: 10,
+          usePointStyle: false,
+        }
+      },
+      tooltip: {
+        backgroundColor:'rgba(255,255,255,0.95)',
+        borderColor:'#cccccc', borderWidth:1,
+        titleColor: MPL_TEXT, bodyColor: MPL_MUTED,
+        titleFont:{ family:'Arial,sans-serif', size:11 },
+        bodyFont:{ family:'Arial,sans-serif', size:11 },
+      }
+    },
+    scales: {
+      x: {
+        type:'linear',
+        background: MPL_BG,
+        grid:{ color: MPL_GRID, lineWidth:1 },
+        border:{ color:'#888', width:1 },
+        ticks:{ color: MPL_TEXT, font:{ family:'Arial,sans-serif', size:11 }, maxTicksLimit:10 },
+        title:{ display:true, text: xLabel, color: MPL_TEXT, font:{ family:'Arial,sans-serif', size:11 } }
+      },
+      y: {
+        grid:{ color: MPL_GRID, lineWidth:1 },
+        border:{ color:'#888', width:1 },
+        ticks:{ color: MPL_TEXT, font:{ family:'Arial,sans-serif', size:11 } },
+        title:{ display:true, text: yLabel, color: MPL_TEXT, font:{ family:'Arial,sans-serif', size:11 } }
+      }
+    }
+  };
+}
+
+function lineDs(label, xArr, yArr, color, alpha=1.0) {
+  return {
+    label,
+    data: xArr.map((x,i) => ({ x, y: yArr[i] })),
+    borderColor: color,
+    backgroundColor: 'transparent',
+    borderWidth: 2,
+    pointRadius: 0,
+    tension: 0,   // straight lines like matplotlib default
+    borderCapStyle: 'round',
+  };
+}
+
+// White-background plugin so canvas looks like a matplotlib figure
+const whiteBgPlugin = {
+  id: 'whiteBg',
+  beforeDraw(chart) {
+    const ctx = chart.ctx;
+    ctx.save();
+    ctx.fillStyle = MPL_BG;
+    ctx.fillRect(0, 0, chart.width, chart.height);
+    ctx.restore();
+  }
+};
+
+function makeChart(canvasId, datasets, xLabel, yLabel, extraPlugins=[]) {
+  if (charts[canvasId]) { charts[canvasId].destroy(); }
+  const ctx = document.getElementById(canvasId).getContext('2d');
+  const opts = baseOpts(xLabel, yLabel);
+  charts[canvasId] = new Chart(ctx, {
+    type: 'line',
+    data: { datasets },
+    options: opts,
+    plugins: [whiteBgPlugin, ...extraPlugins]
+  });
+  return charts[canvasId];
+}
+
+// Build the 2×2 subplot grid card (matches original matplotlib fig layout)
+function renderCharts(vis) {
+  Object.values(charts).forEach(c => c.destroy()); charts = {};
+  document.querySelectorAll('.chart-card, .mpl-grid').forEach(c => c.remove());
+
+  if (vis.length === 0) return;
+
+  const main = document.getElementById('main');
+
+  // ── 2×2 matplotlib-style grid ──
+  const grid = document.createElement('div');
+  grid.className = 'mpl-grid';
+  grid.innerHTML = `
+    <div class="mpl-cell" id="cell-alt"   style="${chartVis.alt    ? '' : 'display:none'}">
+      <div class="mpl-title">Altitude Comparison</div>
+      <div class="mpl-wrap"><canvas id="canvas-alt"></canvas></div>
+    </div>
+    <div class="mpl-cell" id="cell-vel"   style="${chartVis.vel    ? '' : 'display:none'}">
+      <div class="mpl-title">Velocity Comparison</div>
+      <div class="mpl-wrap"><canvas id="canvas-vel"></canvas></div>
+    </div>
+    <div class="mpl-cell" id="cell-apogee" style="${chartVis.apogee ? '' : 'display:none'}">
+      <div class="mpl-title">Apogee Comparison</div>
+      <div class="mpl-wrap"><canvas id="canvas-apogee"></canvas></div>
+    </div>
+    <div class="mpl-cell" id="cell-stats">
+      <div class="mpl-title">Flight Comparison Statistics</div>
+      <div class="mpl-stats-box" id="stats-text-box"></div>
+    </div>
+  `;
+  main.appendChild(grid);
+
+  // ── Altitude chart ──
+  if (chartVis.alt) {
+    const ds = vis.map(f => lineDs(
+      f.type==='pf2' ? `Actual Flight (${f.name.replace(/\.[^.]+$/,'')})` : `Simulation (${f.name.replace(/\.[^.]+$/,'')})`,
+      f.data.t, altArr(f), mplColor(f)
+    ));
+    makeChart('canvas-alt', ds, 'Time (s)', 'Altitude (ft)');
+  }
+
+  // ── Velocity chart ──
+  if (chartVis.vel) {
+    const ds = vis.map(f => lineDs(
+      f.type==='pf2' ? `Actual Flight (${f.name.replace(/\.[^.]+$/,'')})` : `Simulation (${f.name.replace(/\.[^.]+$/,'')})`,
+      f.data.t, velArr(f), mplColor(f)
+    ));
+    makeChart('canvas-vel', ds, 'Time (s)', 'Velocity (ft/s)');
+  }
+
+  // ── Apogee chart ──
+  if (chartVis.apogee) {
+    const ds = [];
+    vis.forEach(f => {
+      const color = mplColor(f);
+      const label = f.type==='pf2'
+        ? `Actual Flight (${f.name.replace(/\.[^.]+$/,'')})`
+        : `Simulation (${f.name.replace(/\.[^.]+$/,'')})`;
+      ds.push(lineDs(label, f.data.t, altArr(f), color));
+      const a = altArr(f), mi = maxIdx(a);
+      const apogeeLabel = f.type==='pf2'
+        ? `Flight Apogee: ${a[mi].toFixed(1)} ft`
+        : `Sim Apogee: ${a[mi].toFixed(1)} ft`;
+      ds.push({
+        label: apogeeLabel,
+        data: [{ x: f.data.t[mi], y: a[mi] }],
+        borderColor: color, backgroundColor: color,
+        pointRadius: 12, pointStyle: 'star',
+        pointHoverRadius: 14,
+        showLine: false,
+      });
+    });
+    makeChart('canvas-apogee', ds, 'Time (s)', 'Altitude (ft)');
+  }
+
+  // ── Stats text box ──
+  renderStatsBox(vis);
+}
+
+function renderStatsBox(vis) {
+  const box = document.getElementById('stats-text-box');
+  if (!box) return;
+
+  // Only show comparison stats if exactly one sim + one flight are visible
+  const sims    = vis.filter(f => f.type === 'csv');
+  const flights = vis.filter(f => f.type === 'pf2');
+
+  if (sims.length === 1 && flights.length === 1) {
+    const s = sims[0], fl = flights[0];
+    const simMaxAlt    = Math.max(...altArr(s));
+    const actMaxAlt    = Math.max(...altArr(fl));
+    const simMaxVel    = Math.max(...velArr(s));
+    const actMaxVel    = Math.max(...velArr(fl));
+    const simApT       = s.data.t[maxIdx(altArr(s))];
+    const actApT       = fl.data.t[maxIdx(altArr(fl))];
+    const altDiff      = actMaxAlt - simMaxAlt;
+    const altErr       = (altDiff / simMaxAlt * 100);
+    const velDiff      = actMaxVel - simMaxVel;
+    const velErr       = (velDiff / simMaxVel * 100);
+    const tDiff        = actApT - simApT;
+
+    const sign = v => v >= 0 ? `+${v.toFixed(1)}` : v.toFixed(1);
+    const signF = v => v >= 0 ? `+${v.toFixed(2)}` : v.toFixed(2);
+
+    box.innerHTML = `<pre class="stats-pre">FLIGHT COMPARISON STATISTICS
+═══════════════════════════════════════
+
+Maximum Altitude:
+  Simulation:    ${simMaxAlt.toFixed(1).padStart(9)} ft
+  Actual Flight: ${actMaxAlt.toFixed(1).padStart(9)} ft
+  Difference:    ${sign(altDiff).padStart(9)} ft
+  Error:         ${(sign(altErr)+'%').padStart(9)}
+
+Time to Apogee:
+  Simulation:    ${simApT.toFixed(2).padStart(9)} s
+  Actual Flight: ${actApT.toFixed(2).padStart(9)} s
+  Difference:    ${signF(tDiff).padStart(9)} s
+
+Maximum Velocity:
+  Simulation:    ${simMaxVel.toFixed(1).padStart(9)} ft/s
+  Actual Flight: ${actMaxVel.toFixed(1).padStart(9)} ft/s
+  Difference:    ${sign(velDiff).padStart(9)} ft/s
+  Error:         ${(sign(velErr)+'%').padStart(9)}</pre>`;
+  } else {
+    // Multi-file summary table
+    let rows = vis.map(f => {
+      const a = altArr(f), v = velArr(f), mi = maxIdx(a);
+      return `  ${f.name.replace(/\.[^.]+$/,'').slice(0,22).padEnd(24)} ${Math.max(...a).toFixed(1).padStart(8)} ft   ${f.data.t[mi].toFixed(2).padStart(6)} s   ${Math.max(...v).toFixed(1).padStart(8)} ft/s`;
+    });
+    box.innerHTML = `<pre class="stats-pre">LOADED FILES SUMMARY
+═══════════════════════════════════════════════════════
+
+  ${'Name'.padEnd(24)} ${'Max Alt'.padStart(8)}      ${'t_apogee'.padStart(6)}   ${'Max Vel'.padStart(8)}
+  ${'─'.repeat(60)}
+${rows.join('\n')}</pre>`;
+  }
+}
+
+// ── Downloads ──────────────────────────────────────────────────────
+function downloadCSV(f) {
+  const isFlight = f.type === 'pf2';
+  const headers = isFlight ? ['time_s','altitude_ft','velocity_ft_s'] : ['time_s','altitude_ft','velocity_ft_s'];
+  const t = f.data.t;
+  const a = altArr(f);
+  const v = velArr(f);
+  const rows = [headers.join(',')];
+  for (let i = 0; i < t.length; i++) rows.push(`${t[i]},${a[i]},${v[i]}`);
+  // add meta as comments at top if available
+  let csv = '';
+  if (f.meta) {
+    for (const [k,val] of Object.entries(f.meta)) csv += `# ${k}: ${val}\n`;
+  }
+  csv += rows.join('\n');
+  triggerDownload(csv, f.name.replace(/\.[^.]+$/,'') + '_exported.csv', 'text/csv');
+}
+
+function downloadAllCSV() {
+  // Merge all visible files into one CSV with a source column
+  const vis = visibleFiles();
+  if (!vis.length) return;
+  const rows = ['source,type,time_s,altitude_ft,velocity_ft_s'];
+  vis.forEach(f => {
+    const t=f.data.t, a=altArr(f), v=velArr(f);
+    for (let i=0; i<t.length; i++) {
+      rows.push(`"${f.name}",${f.type},${t[i]},${a[i]},${v[i]}`);
+    }
+  });
+  triggerDownload(rows.join('\n'), 'all_flights_combined.csv', 'text/csv');
+}
+
+function downloadChartPNG(key) {
+  const chart = charts['canvas-' + key] || charts[key];
+  if (!chart) return;
+  const canvas = chart.canvas;
+  const off = document.createElement('canvas');
+  off.width = canvas.width; off.height = canvas.height;
+  const ctx = off.getContext('2d');
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, off.width, off.height);
+  ctx.drawImage(canvas, 0, 0);
+  off.toBlob(blob => {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `chart_${key}.png`; a.click();
+    URL.revokeObjectURL(url);
+  }, 'image/png');
+}
+
+function triggerDownload(content, filename, mime) {
+  const blob = new Blob([content], { type: mime });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url; a.download = filename; a.click();
+  URL.revokeObjectURL(url);
+}
+
+function renderDownloadPanel() {
+  const sec = document.getElementById('dl-section');
+  if (files.length === 0) {
+    sec.innerHTML = '<div class="dl-empty">Load files to enable exports</div>';
+    return;
+  }
+  const vis = visibleFiles();
+
+  let html = '';
+
+  // Per-file CSV
+  html += `<div class="dl-sub">📄 CSV — per file</div>`;
+  files.forEach(f => {
+    const shortName = f.name.replace(/\.[^.]+$/,'').slice(0, 20);
+    html += `<div class="dl-file-row">
+      <div class="dl-file-swatch" style="background:${f.color}"></div>
+      <span class="dl-file-name" title="${f.name}">${shortName}</span>
+      <button class="dl-btn" data-dl-csv="${f.id}">↓ CSV</button>
+    </div>`;
+  });
+
+  // Combined CSV
+  if (vis.length > 1) {
+    html += `<button class="dl-all-btn" id="dl-all-csv">↓ Combined CSV (${vis.length} files)</button>`;
+  }
+
+  // Per-chart PNG
+  const chartLabels = { alt: 'Altitude', vel: 'Velocity', apogee: 'Apogee' };
+  const activeChartKeys = ['alt','vel','apogee'].filter(k => charts['canvas-'+k]);
+  if (activeChartKeys.length > 0) {
+    html += `<div class="dl-sub" style="margin-top:4px">🖼 PNG — charts</div>`;
+    activeChartKeys.forEach(key => {
+      html += `<div class="dl-chart-row">
+        <span class="dl-chart-name">${chartLabels[key]}</span>
+        <button class="dl-btn-png" data-dl-png="${key}">↓ PNG</button>
+      </div>`;
+    });
+  }
+
+  sec.innerHTML = html;
+
+  // Wire up events
+  sec.querySelectorAll('[data-dl-csv]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const f = files.find(x => x.id == btn.dataset.dlCsv);
+      if (f) downloadCSV(f);
+    });
+  });
+  sec.querySelector('#dl-all-csv')?.addEventListener('click', downloadAllCSV);
+  sec.querySelectorAll('[data-dl-png]').forEach(btn => {
+    btn.addEventListener('click', () => downloadChartPNG(btn.dataset.dlPng));
+  });
+}
+
+// ── Master refresh ─────────────────────────────────────────────────
+function refresh() {
+  updateCounts();
+  renderFileList();
+
+  const vis = visibleFiles();
+  const empty = document.getElementById('empty-state');
+  const main  = document.getElementById('main');
+
+  if (files.length === 0 || vis.length === 0) {
+    empty.style.display = 'block';
+    document.querySelector('.stats-grid')?.remove();
+    Object.values(charts).forEach(c=>c.destroy()); charts={};
+    document.querySelectorAll('.chart-card').forEach(c=>c.remove());
+    renderDownloadPanel();
+    return;
+  }
+
+  empty.style.display = 'none';
+  renderStats(vis);
+  renderCharts(vis);
+  renderDownloadPanel();
+}
+</script>
+</body>
+</html>
